@@ -1604,6 +1604,23 @@ if (typeof window !== 'undefined') window.createCar = createCar;
   }
   function carLerpY(a, b, t){ return a + (b - a) * t; }
 
+  // 支持用 URL 参数直接进状态：?doors=1&view=cockpit|front|side|rear|top&color=0xff0000
+  (function parseQuery(){
+    var q = {};
+    (location.search.replace(/^\?/, '') || '').split('&').forEach(function(kv){
+      if (!kv) return;
+      var i = kv.indexOf('=');
+      q[decodeURIComponent(kv.slice(0, i))] = decodeURIComponent(kv.slice(i + 1));
+    });
+    if (q.doors === '1' || q.doors === 'true') toggleDoors(true);
+    if (q.roof === '0') toggleRoof(true);
+    if (q.shell === '0') toggleShell(true);
+    if (q.view) { if (q.view === 'cockpit') setMode('cockpit'); else preset(q.view); }
+    if (q.color) car.userData.setColor(parseInt(q.color, 16));
+    if (q.auto === '1') state.auto = true;
+    if (q.auto === '0' || q.doors || q.view) state.auto = false;
+  })();
+
   resize();
   syncUI();
   setTimeout(function(){
