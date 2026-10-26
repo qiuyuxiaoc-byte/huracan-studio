@@ -1344,11 +1344,12 @@ if (typeof window !== 'undefined') window.createCar = createCar;
   };
   var home = { theta: state.theta, phi: state.phi, dist: state.dist };
 
-  var eye = new THREE.Vector3(-0.42, 1.02, -0.33);   // 驾驶位眼点
+  var eye = new THREE.Vector3(-0.30, 1.055, -0.33);  // 驾驶位眼点
   var look = { yaw: 0, pitch: -0.05 };
 
   function applyCamera(){
     if (state.mode === 'cockpit'){
+      if (camera.fov !== 62){ camera.fov = 62; camera.updateProjectionMatrix(); }
       var dir = new THREE.Vector3(
         Math.cos(look.pitch) * Math.cos(look.yaw),
         Math.sin(look.pitch),
@@ -1357,6 +1358,10 @@ if (typeof window !== 'undefined') window.createCar = createCar;
       camera.position.copy(eye);
       camera.lookAt(eye.clone().add(dir));
       return;
+    }
+    if (camera.fov !== (canvas.clientHeight > canvas.clientWidth ? 46 : 38)){
+      camera.fov = canvas.clientHeight > canvas.clientWidth ? 46 : 38;
+      camera.updateProjectionMatrix();
     }
     var t = state.target;
     var sp = Math.sin(state.phi), cp = Math.cos(state.phi);
@@ -1392,6 +1397,7 @@ if (typeof window !== 'undefined') window.createCar = createCar;
     pointers[e.pointerId] = { x: e.clientX, y: e.clientY };
     var ids = Object.keys(pointers);
     if (state.mode === 'cockpit'){
+      if (camera.fov !== 62){ camera.fov = 62; camera.updateProjectionMatrix(); }
       if (ids.length === 1){
         var dx0 = e.clientX - last.x, dy0 = e.clientY - last.y;
         last.x = e.clientX; last.y = e.clientY;
